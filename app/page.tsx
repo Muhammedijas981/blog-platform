@@ -1,161 +1,183 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import { trpc } from "@/trpc/client";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { formatDate, truncate } from "@/lib/utils";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import CategoryIcon from "@mui/icons-material/Category";
 
-export default function Home() {
-  const { data: posts, isLoading: postsLoading } = trpc.post.getAll.useQuery();
-  const { data: categories, isLoading: categoriesLoading } =
-    trpc.category.getAll.useQuery();
+export default function HomePage() {
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [publishedFilter, setPublishedFilter] = useState<boolean | undefined>(
+    true
+  );
 
-  const createPost = trpc.post.create.useMutation();
-  const createCategory = trpc.category.create.useMutation();
+  const { data: posts, isLoading: postsLoading } = trpc.post.getAll.useQuery({
+    published: publishedFilter,
+  });
 
-  if (postsLoading || categoriesLoading) {
+  const { data: categories } = trpc.category.getAll.useQuery();
+
+  // Filter posts by category
+  const filteredPosts =
+    selectedCategory === "all"
+      ? posts
+      : posts?.filter((post) =>
+          post.categories.some((cat) => cat.id.toString() === selectedCategory)
+        );
+
+  if (postsLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading...</div>
+      <div className="container py-12">
+        <div className="text-center">Loading posts...</div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen p-8 max-w-6xl mx-auto">
-      <h1 className="text-4xl font-bold mb-8">
-        🎉 Blog Platform - Day 1-2 Test
-      </h1>
-
-      {/* Categories Section */}
-      <div className="mb-12 p-6 bg-blue-50 rounded-lg">
-        <h2 className="text-2xl font-semibold mb-4">
-          📁 Categories ({categories?.length || 0})
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {categories && categories.length > 0 ? (
-            categories.map((category) => (
-              <div
-                key={category.id}
-                className="p-4 bg-white border rounded-lg shadow-sm"
-              >
-                <h3 className="font-semibold text-lg">{category.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  {category.description || "No description"}
-                </p>
-                <p className="text-xs text-gray-500 mt-2">
-                  📝 {category.postCount} post
-                  {category.postCount !== 1 ? "s" : ""}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500 col-span-3">
-              No categories yet. Create one below! 👇
-            </p>
-          )}
-        </div>
-        <button
-          onClick={() => {
-            const name = prompt("Category name:");
-            const description = prompt("Category description (optional):");
-            if (name) {
-              createCategory.mutate(
-                { name, description: description || undefined },
-                {
-                  onSuccess: () => {
-                    alert("✅ Category created successfully!");
-                    window.location.reload();
-                  },
-                  onError: (error) => {
-                    alert(`❌ Error: ${error.message}`);
-                  },
-                }
-              );
-            }
-          }}
-          disabled={createCategory.isPending}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        >
-          {createCategory.isPending ? "Creating..." : "➕ Add Test Category"}
-        </button>
-      </div>
-
-      {/* Posts Section */}
-      <div className="p-6 bg-green-50 rounded-lg">
-        <h2 className="text-2xl font-semibold mb-4">
-          📝 Posts ({posts?.length || 0})
-        </h2>
-        <div className="space-y-4 mb-6">
-          {posts && posts.length > 0 ? (
-            posts.map((post) => (
-              <div
-                key={post.id}
-                className="p-6 bg-white border rounded-lg shadow-sm"
-              >
-                <h3 className="text-xl font-semibold">{post.title}</h3>
-                <p className="text-gray-600 mt-2 line-clamp-2">
-                  {post.content.substring(0, 200)}...
-                </p>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {post.categories.map((cat) => (
-                    <span
-                      key={cat.id}
-                      className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full"
-                    >
-                      {cat.name}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
-                  <span className="font-medium">
-                    {post.published ? "✅ Published" : "📝 Draft"}
-                  </span>
-                  <span>🔗 Slug: {post.slug}</span>
-                  <span>
-                    📅 {new Date(post.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No posts yet. Create one below! 👇</p>
-          )}
-        </div>
-        <button
-          onClick={() => {
-            const title = prompt("Post title:");
-            const content = prompt("Post content:");
-            if (title && content) {
-              createPost.mutate(
-                { title, content, published: true },
-                {
-                  onSuccess: () => {
-                    alert("✅ Post created successfully!");
-                    window.location.reload();
-                  },
-                  onError: (error) => {
-                    alert(`❌ Error: ${error.message}`);
-                  },
-                }
-              );
-            }
-          }}
-          disabled={createPost.isPending}
-          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-        >
-          {createPost.isPending ? "Creating..." : "➕ Add Test Post"}
-        </button>
-      </div>
-
-      {/* Success Message */}
-      <div className="mt-8 p-6 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
-        <h3 className="text-lg font-semibold text-yellow-800 mb-2">
-          🎉 Day 1-2 Backend Setup Complete!
-        </h3>
-        <p className="text-yellow-700">
-          Your database, tRPC API, and frontend client are working perfectly.
-          Try creating some categories and posts above to test the full CRUD
-          functionality!
+    <div className="container py-8 md:py-12">
+      {/* Hero Section */}
+      <div className="mb-12 text-center">
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+          Welcome to Blog Platform
+        </h1>
+        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+          Discover insightful articles, tutorials, and stories from our
+          community
         </p>
       </div>
-    </main>
+
+      {/* Filters */}
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-4">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories?.map((category) => (
+                <SelectItem key={category.id} value={category.id.toString()}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={
+              publishedFilter === undefined
+                ? "all"
+                : publishedFilter
+                ? "published"
+                : "draft"
+            }
+            onValueChange={(value) => {
+              if (value === "all") setPublishedFilter(undefined);
+              else if (value === "published") setPublishedFilter(true);
+              else setPublishedFilter(false);
+            }}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Posts</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="draft">Drafts</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <p className="text-sm text-muted-foreground">
+          {filteredPosts?.length || 0} post
+          {filteredPosts?.length !== 1 ? "s" : ""} found
+        </p>
+      </div>
+
+      {/* Posts Grid */}
+      {filteredPosts && filteredPosts.length > 0 ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredPosts.map((post) => (
+            <Card key={post.id} className="flex flex-col">
+              <CardHeader>
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="line-clamp-2">{post.title}</CardTitle>
+                  <Badge variant={post.published ? "default" : "secondary"}>
+                    {post.published ? "Published" : "Draft"}
+                  </Badge>
+                </div>
+                <CardDescription className="flex items-center gap-1 text-xs">
+                  <CalendarTodayIcon className="h-3 w-3" />
+                  {formatDate(post.createdAt)}
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="flex-1">
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  {truncate(post.content, 150)}
+                </p>
+
+                {post.categories.length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {post.categories.map((category) => (
+                      <Badge
+                        key={category.id}
+                        variant="outline"
+                        className="text-xs"
+                      >
+                        <CategoryIcon className="mr-1 h-3 w-3" />
+                        {category.name}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+
+              <CardFooter className="gap-2">
+                <Link href={`/posts/${post.slug}`} className="flex-1">
+                  <Button variant="default" className="w-full gap-2">
+                    <VisibilityIcon className="h-4 w-4" />
+                    Read More
+                  </Button>
+                </Link>
+                <Link href={`/posts/${post.slug}/edit`}>
+                  <Button variant="outline" size="icon">
+                    <EditIcon className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <p className="text-lg text-muted-foreground">No posts found</p>
+          <Link href="/posts/new">
+            <Button className="mt-4">Create your first post</Button>
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }
