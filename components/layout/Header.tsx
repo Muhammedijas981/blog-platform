@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import HomeIcon from "@mui/icons-material/Home";
 import ArticleIcon from "@mui/icons-material/Article";
 import CategoryIcon from "@mui/icons-material/Category";
@@ -51,12 +52,15 @@ export function Header() {
             Categories
           </Link>
         </nav>
-        <Link href="/posts/new">
-          <Button className="gap-2">
-            <AddCircleIcon className="h-4 w-4" />
-            <span className="hidden sm:inline">New Post</span>
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Link href="/posts/new">
+            <Button className="gap-2">
+              <AddCircleIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">New Post</span>
+            </Button>
+          </Link>
+        </div>
       </div>
     </header>
   );

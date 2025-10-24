@@ -21,13 +21,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/Input";
-import { formatDate, truncate } from "@/lib/utils";
+import { Pagination } from "@/components/ui/pagination";
+import { formatDate, truncate, calculateReadingTime } from "@/lib/utils";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import CategoryIcon from "@mui/icons-material/Category";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 export default function PostsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -35,15 +37,21 @@ export default function PostsPage() {
     undefined
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: posts, isLoading: postsLoading } = trpc.post.getAll.useQuery({
+  const { data, isLoading: postsLoading } = trpc.post.getAll.useQuery({
     published: publishedFilter,
+    limit: 9,
+    page: currentPage,
   });
 
   const { data: categories } = trpc.category.getAll.useQuery();
 
+  const posts = data?.posts || [];
+  const pagination = data?.pagination;
+
   // Filter posts by category and search
-  let filteredPosts = posts || [];
+  let filteredPosts = posts;
 
   // Filter by category
   if (selectedCategory !== "all") {
@@ -130,6 +138,7 @@ export default function PostsPage() {
               if (value === "all") setPublishedFilter(undefined);
               else if (value === "published") setPublishedFilter(true);
               else setPublishedFilter(false);
+              setCurrentPage(1); // Reset to page 1 when changing filter
             }}
           >
             <SelectTrigger className="w-[150px]">
@@ -144,69 +153,89 @@ export default function PostsPage() {
         </div>
 
         <p className="text-sm text-muted-foreground">
-          {filteredPosts.length} post{filteredPosts.length !== 1 ? "s" : ""}{" "}
-          found
+          {filteredPosts.length} of {pagination?.total || 0} post
+          {pagination?.total !== 1 ? "s" : ""}
         </p>
       </div>
 
       {/* Posts Grid */}
       {filteredPosts.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredPosts.map((post) => (
-            <Card key={post.id} className="flex flex-col">
-              <CardHeader>
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="line-clamp-2">{post.title}</CardTitle>
-                  <Badge variant={post.published ? "default" : "secondary"}>
-                    {post.published ? "Published" : "Draft"}
-                  </Badge>
-                </div>
-                <CardDescription className="flex items-center gap-1 text-xs">
-                  <CalendarTodayIcon className="h-3 w-3" />
-                  {formatDate(post.createdAt)}
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent className="flex-1">
-                <div
-                  className="text-sm text-muted-foreground line-clamp-3"
-                  dangerouslySetInnerHTML={{
-                    __html: truncate(post.content.replace(/<[^>]*>/g, ""), 150),
-                  }}
-                />
-
-                {post.categories.length > 0 && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {post.categories.map((category) => (
-                      <Badge
-                        key={category.id}
-                        variant="outline"
-                        className="text-xs"
-                      >
-                        <CategoryIcon className="mr-1 h-3 w-3" />
-                        {category.name}
-                      </Badge>
-                    ))}
+        <>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredPosts.map((post) => (
+              <Card key={post.id} className="flex flex-col">
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="line-clamp-2">{post.title}</CardTitle>
+                    <Badge variant={post.published ? "default" : "secondary"}>
+                      {post.published ? "Published" : "Draft"}
+                    </Badge>
                   </div>
-                )}
-              </CardContent>
+                  <div className="space-y-1">
+                    <CardDescription className="flex items-center gap-1 text-xs">
+                      <CalendarTodayIcon className="h-3 w-3" />
+                      {formatDate(post.createdAt)}
+                    </CardDescription>
+                    <CardDescription className="flex items-center gap-1 text-xs">
+                      <AccessTimeIcon className="h-3 w-3" />
+                      {calculateReadingTime(post.content)} min read
+                    </CardDescription>
+                  </div>
+                </CardHeader>
 
-              <CardFooter className="gap-2">
-                <Link href={`/posts/${post.slug}`} className="flex-1">
-                  <Button variant="default" className="w-full gap-2">
-                    <VisibilityIcon className="h-4 w-4" />
-                    View
-                  </Button>
-                </Link>
-                <Link href={`/posts/${post.slug}/edit`}>
-                  <Button variant="outline" size="icon">
-                    <EditIcon className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+                <CardContent className="flex-1">
+                  <div
+                    className="text-sm text-muted-foreground line-clamp-3"
+                    dangerouslySetInnerHTML={{
+                      __html: truncate(
+                        post.content.replace(/<[^>]*>/g, ""),
+                        150
+                      ),
+                    }}
+                  />
+
+                  {post.categories.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {post.categories.map((category) => (
+                        <Badge
+                          key={category.id}
+                          variant="outline"
+                          className="text-xs"
+                        >
+                          <CategoryIcon className="mr-1 h-3 w-3" />
+                          {category.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+
+                <CardFooter className="gap-2">
+                  <Link href={`/posts/${post.slug}`} className="flex-1">
+                    <Button variant="default" className="w-full gap-2">
+                      <VisibilityIcon className="h-4 w-4" />
+                      View
+                    </Button>
+                  </Link>
+                  <Link href={`/posts/${post.slug}/edit`}>
+                    <Button variant="outline" size="icon">
+                      <EditIcon className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {pagination && pagination.totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={pagination.totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </>
       ) : (
         <Card>
           <CardHeader>

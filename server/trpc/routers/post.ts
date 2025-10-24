@@ -14,28 +14,41 @@ function generateSlug(title: string): string {
 
 export const postRouter = router({
   // Get all posts with optional filters
+  // getAll query to support pagination
   getAll: publicProcedure
     .input(
       z
         .object({
           published: z.boolean().optional(),
-          limit: z.number().min(1).max(100).optional().default(50),
+          limit: z.number().min(1).max(100).optional().default(9),
+          page: z.number().min(1).optional().default(1),
         })
         .optional()
     )
     .query(async ({ ctx, input }) => {
       const conditions = [];
+      const limit = input?.limit || 9;
+      const page = input?.page || 1;
+      const offset = (page - 1) * limit;
 
       if (input?.published !== undefined) {
         conditions.push(eq(posts.published, input.published));
       }
 
+      // Get total count
+      const totalPosts = await ctx.db
+        .select()
+        .from(posts)
+        .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      // Get paginated posts
       const allPosts = await ctx.db
         .select()
         .from(posts)
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(posts.createdAt))
-        .limit(input?.limit || 50);
+        .limit(limit)
+        .offset(offset);
 
       // Get categories for each post
       const postsWithCategories = await Promise.all(
@@ -60,7 +73,15 @@ export const postRouter = router({
         })
       );
 
-      return postsWithCategories;
+      return {
+        posts: postsWithCategories,
+        pagination: {
+          total: totalPosts.length,
+          page,
+          limit,
+          totalPages: Math.ceil(totalPosts.length / limit),
+        },
+      };
     }),
 
   // Get single post by ID
