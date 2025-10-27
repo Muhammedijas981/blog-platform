@@ -16,11 +16,11 @@ import { Separator } from "@/components/ui/separator";
 import { PostStats } from "@/components/posts/PostStats";
 import { formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import CategoryIcon from "@mui/icons-material/Category";
+import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import CircularProgress from "@mui/icons-material/Loop";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,7 +38,6 @@ export default function PostViewPage() {
   const router = useRouter();
   const slug = params.slug as string;
 
-  // ✅ CORRECT: Use post.getBySlug, NOT category.getBySlug
   const { data: post, isLoading } = trpc.post.getBySlug.useQuery({ slug });
   const deletePost = trpc.post.delete.useMutation();
 
@@ -56,27 +55,30 @@ export default function PostViewPage() {
 
   if (isLoading) {
     return (
-      <div className="container py-12">
-        <div className="text-center">Loading post...</div>
+      <div className="container max-w-6xl mx-auto py-12 px-4">
+        <div className="flex flex-col items-center justify-center gap-3">
+          <CircularProgress className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading post...</p>
+        </div>
       </div>
     );
   }
 
   if (!post) {
     return (
-      <div className="container py-12">
-        <Card>
+      <div className="container max-w-6xl mx-auto py-12 px-4">
+        <Card className="border">
           <CardHeader>
-            <CardTitle>Post Not Found</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-lg">Post Not Found</CardTitle>
+            <CardDescription className="text-sm">
               The post you're looking for doesn't exist.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/">
-              <Button>
-                <ArrowBackIcon className="mr-2 h-4 w-4" />
-                Back to Home
+            <Link href="/posts">
+              <Button size="sm">
+                <ArrowBackOutlinedIcon className="mr-2 h-4 w-4" />
+                Back to Posts
               </Button>
             </Link>
           </CardContent>
@@ -86,35 +88,36 @@ export default function PostViewPage() {
   }
 
   return (
-    <div className="container py-8 md:py-12">
-      {/* Back Button */}
-      <div className="mb-6">
-        <Link href="/">
-          <Button variant="ghost" size="sm">
-            <ArrowBackIcon className="mr-2 h-4 w-4" />
-            Back to Posts
-          </Button>
-        </Link>
-      </div>
-
-      {/* Post Content */}
+    <div className="container max-w-6xl mx-auto py-6 md:py-8 px-4">
+      {/* Post Content Wrapper - constrains both back button and content */}
       <article className="mx-auto max-w-4xl">
-        <Card>
-          <CardHeader className="space-y-4">
-            {/* ✨ Show image if available */}
-            {post.imageUrl && (
-              <img
-                src={post.imageUrl}
-                alt={post.title}
-                className="w-full h-64 object-cover rounded mb-4"
-              />
-            )}
+        {/* Back Button - now inside article wrapper */}
+        <div className="mb-4">
+          <Link href="/posts">
+            <Button variant="ghost" size="sm" className="gap-1.5">
+              <ArrowBackOutlinedIcon className="h-4 w-4" />
+              Back to Posts
+            </Button>
+          </Link>
+        </div>
 
-            {/* Status Badge */}
-            <div className="flex items-start justify-between gap-4">
+        {/* Post Card */}
+        <Card className="border overflow-hidden">
+          {/* ✨ Full-width image at the top */}
+          {post.imageUrl && (
+            <img
+              src={post.imageUrl}
+              alt={post.title}
+              className="w-full h-64 md:h-80 object-cover"
+            />
+          )}
+
+          <CardHeader className="space-y-3 pb-4">
+            {/* Status Badge & Actions */}
+            <div className="flex items-start justify-between gap-3">
               <Badge
                 variant={post.published ? "default" : "secondary"}
-                className="w-fit"
+                className="w-fit text-xs"
               >
                 {post.published ? "Published" : "Draft"}
               </Badge>
@@ -122,30 +125,38 @@ export default function PostViewPage() {
               {/* Action Buttons */}
               <div className="flex gap-2">
                 <Link href={`/posts/${post.slug}/edit`}>
-                  <Button variant="outline" size="sm">
-                    <EditIcon className="mr-2 h-4 w-4" />
+                  <Button variant="outline" size="sm" className="gap-1.5">
+                    <EditOutlinedIcon className="h-3.5 w-3.5" />
                     Edit
                   </Button>
                 </Link>
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm">
-                      <DeleteIcon className="mr-2 h-4 w-4" />
+                    <Button
+                      size="sm"
+                      className="gap-1.5 bg-foreground text-background hover:bg-foreground/90"
+                    >
+                      <DeleteOutlineIcon className="h-3.5 w-3.5" />
                       Delete
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
+                      <AlertDialogTitle className="text-lg">
+                        Are you sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="text-sm">
                         This action cannot be undone. This will permanently
                         delete the post "{post.title}".
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete}>
+                      <AlertDialogAction
+                        onClick={handleDelete}
+                        className="bg-foreground text-background hover:bg-foreground/90"
+                      >
                         Delete
                       </AlertDialogAction>
                     </AlertDialogFooter>
@@ -155,35 +166,36 @@ export default function PostViewPage() {
             </div>
 
             {/* Title */}
-            <CardTitle className="text-3xl md:text-4xl">{post.title}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl leading-tight">
+              {post.title}
+            </CardTitle>
 
             {/* Metadata */}
             <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
-                  <CalendarTodayIcon className="h-4 w-4" />
+                  <CalendarTodayOutlinedIcon className="h-3.5 w-3.5" />
                   {formatDate(post.createdAt)}
                 </div>
-                {post.updatedAt !== post.createdAt && (
+                {post.updatedAt.toString() !== post.createdAt.toString() && (
                   <span className="text-xs">
                     (Updated: {formatDate(post.updatedAt)})
                   </span>
                 )}
               </div>
               {/* Post Statistics */}
-              <PostStats content={post.content} className="pt-2" />
+              <PostStats content={post.content} className="pt-1" />
             </div>
 
-            {/* Categories */}
+            {/* Categories - WITHOUT icons */}
             {post.categories.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {post.categories.map((category) => (
                   <Link key={category.id} href={`/categories/${category.slug}`}>
                     <Badge
                       variant="outline"
-                      className="cursor-pointer hover:bg-accent"
+                      className="text-xs cursor-pointer hover:bg-accent"
                     >
-                      <CategoryIcon className="mr-1 h-3 w-3" />
                       {category.name}
                     </Badge>
                   </Link>
@@ -194,8 +206,8 @@ export default function PostViewPage() {
 
           <Separator />
 
-          <CardContent className="pt-6">
-            <div className="prose prose-neutral max-w-none dark:prose-invert">
+          <CardContent className="pt-5 pb-6">
+            <div className="prose prose-sm prose-neutral max-w-none dark:prose-invert">
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </div>
           </CardContent>
@@ -203,25 +215,24 @@ export default function PostViewPage() {
 
         {/* Related Categories Section */}
         {post.categories.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Related Categories</h2>
+          <div className="mt-6">
+            <h2 className="text-lg font-semibold mb-3">Related Categories</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {post.categories.map((category) => (
-                <Card key={category.id}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{category.name}</CardTitle>
-                    {category.description && (
-                      <CardDescription>{category.description}</CardDescription>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <Link href={`/categories/${category.slug}`}>
-                      <Button variant="outline" size="sm" className="w-full">
-                        View All Posts in {category.name}
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                <Link key={category.id} href={`/categories/${category.slug}`}>
+                  <Card className="border cursor-pointer hover:shadow-md transition-shadow h-full">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">
+                        {category.name}
+                      </CardTitle>
+                      {category.description && (
+                        <CardDescription className="text-xs">
+                          {category.description}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>
