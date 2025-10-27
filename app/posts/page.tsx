@@ -163,7 +163,16 @@ export default function PostsPage() {
         <>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredPosts.map((post) => (
-              <Card key={post.id} className="flex flex-col">
+              <Card key={post.id} className="flex flex-col overflow-hidden">
+                {/* Show image if available */}
+                {post.imageUrl && (
+                  <img
+                    src={post.imageUrl}
+                    alt={post.title}
+                    className="w-full h-48 object-cover"
+                  />
+                )}
+
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="line-clamp-2">{post.title}</CardTitle>

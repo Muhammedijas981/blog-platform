@@ -3,8 +3,6 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { trpc } from "@/trpc/client";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
 import {
   Card,
   CardContent,
@@ -12,7 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { Separator } from "@/components/ui/separator";
+import { PostStats } from "@/components/posts/PostStats";
 import { formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -31,14 +32,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { PostStats } from "@/components/posts/PostStats";
-
 
 export default function PostViewPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
 
+  // ✅ CORRECT: Use post.getBySlug, NOT category.getBySlug
   const { data: post, isLoading } = trpc.post.getBySlug.useQuery({ slug });
   const deletePost = trpc.post.delete.useMutation();
 
@@ -87,6 +87,7 @@ export default function PostViewPage() {
 
   return (
     <div className="container py-8 md:py-12">
+      {/* Back Button */}
       <div className="mb-6">
         <Link href="/">
           <Button variant="ghost" size="sm">
@@ -96,9 +97,20 @@ export default function PostViewPage() {
         </Link>
       </div>
 
+      {/* Post Content */}
       <article className="mx-auto max-w-4xl">
         <Card>
           <CardHeader className="space-y-4">
+            {/* ✨ Show image if available */}
+            {post.imageUrl && (
+              <img
+                src={post.imageUrl}
+                alt={post.title}
+                className="w-full h-64 object-cover rounded mb-4"
+              />
+            )}
+
+            {/* Status Badge */}
             <div className="flex items-start justify-between gap-4">
               <Badge
                 variant={post.published ? "default" : "secondary"}
@@ -107,6 +119,7 @@ export default function PostViewPage() {
                 {post.published ? "Published" : "Draft"}
               </Badge>
 
+              {/* Action Buttons */}
               <div className="flex gap-2">
                 <Link href={`/posts/${post.slug}/edit`}>
                   <Button variant="outline" size="sm">
@@ -141,20 +154,27 @@ export default function PostViewPage() {
               </div>
             </div>
 
+            {/* Title */}
             <CardTitle className="text-3xl md:text-4xl">{post.title}</CardTitle>
 
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <CalendarTodayIcon className="h-4 w-4" />
-                {formatDate(post.createdAt)}
+            {/* Metadata */}
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <CalendarTodayIcon className="h-4 w-4" />
+                  {formatDate(post.createdAt)}
+                </div>
+                {post.updatedAt !== post.createdAt && (
+                  <span className="text-xs">
+                    (Updated: {formatDate(post.updatedAt)})
+                  </span>
+                )}
               </div>
-              {post.updatedAt !== post.createdAt && (
-                <span className="text-xs">
-                  (Updated: {formatDate(post.updatedAt)})
-                </span>
-              )}
+              {/* Post Statistics */}
+              <PostStats content={post.content} className="pt-2" />
             </div>
-            <PostStats content={post.content} className="pt-2" />
+
+            {/* Categories */}
             {post.categories.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {post.categories.map((category) => (
@@ -176,13 +196,12 @@ export default function PostViewPage() {
 
           <CardContent className="pt-6">
             <div className="prose prose-neutral max-w-none dark:prose-invert">
-              <div
-                className="prose prose-neutral max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </div>
           </CardContent>
         </Card>
+
+        {/* Related Categories Section */}
         {post.categories.length > 0 && (
           <div className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Related Categories</h2>

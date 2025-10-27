@@ -17,12 +17,14 @@ interface PostFormProps {
   defaultValues?: {
     title: string;
     content: string;
+    imageUrl?: string;
     published: boolean;
     categoryIds: number[];
   };
   onSubmit: (data: {
     title: string;
     content: string;
+    imageUrl?: string;
     published: boolean;
     categoryIds: number[];
   }) => Promise<void>;
@@ -40,6 +42,8 @@ export function PostForm({
     defaultValues?.categoryIds || []
   );
   const [showPreview, setShowPreview] = useState(false);
+  const [imageUrl, setImageUrl] = useState(defaultValues?.imageUrl || "");
+  const [uploading, setUploading] = useState(false);
 
   const { data: categories } = trpc.category.getAll.useQuery();
 
@@ -51,6 +55,7 @@ export function PostForm({
     await onSubmit({
       title,
       content,
+      imageUrl,
       published,
       categoryIds: selectedCategories,
     });
@@ -70,6 +75,7 @@ export function PostForm({
   return (
     <>
       <div className="space-y-6">
+        {/* Title */}
         <div className="space-y-2">
           <Label htmlFor="title">Title *</Label>
           <Input
@@ -81,6 +87,51 @@ export function PostForm({
             className="text-lg"
           />
         </div>
+
+        {/* Header Image */}
+        <div className="space-y-2">
+          <Label htmlFor="image">Header Image</Label>
+          <Input
+            type="file"
+            accept="image/*"
+            id="image"
+            disabled={isLoading || uploading}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setUploading(true);
+              const formData = new FormData();
+              formData.append("file", file);
+              // Replace with your Cloudinary preset and cloud name!
+              formData.append("upload_preset", "blog_uploads");
+              const res = await fetch(
+                "https://api.cloudinary.com/v1_1/dokjwzhot/image/upload",
+                {
+                  method: "POST",
+                  body: formData,
+                }
+              );
+              const data = await res.json();
+              setImageUrl(data.secure_url);
+              setUploading(false);
+            }}
+          />
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt="Header"
+              className="h-32 rounded mt-2 border object-cover"
+            />
+          )}
+          {uploading && (
+            <div className="text-xs text-muted-foreground">Uploading...</div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Recommended: 1200x600px, max 2MB. JPG/PNG.
+          </p>
+        </div>
+
+        {/* Rich Text Editor */}
         <div className="space-y-2">
           <Label htmlFor="content">Content *</Label>
           <RichTextEditor
@@ -90,6 +141,8 @@ export function PostForm({
             disabled={isLoading}
           />
         </div>
+
+        {/* Categories */}
         <div className="space-y-2">
           <Label>
             <CategoryIcon className="inline h-4 w-4 mr-1" />
@@ -121,6 +174,8 @@ export function PostForm({
             Click categories to select/deselect them for this post
           </p>
         </div>
+
+        {/* Actions */}
         <div className="flex gap-4 pt-4 flex-wrap">
           <Button
             type="button"
@@ -152,6 +207,8 @@ export function PostForm({
           </Button>
         </div>
       </div>
+
+      {/* Preview Dialog */}
       <PostPreview
         open={showPreview}
         onOpenChange={setShowPreview}
@@ -159,6 +216,7 @@ export function PostForm({
         content={content}
         published={defaultValues?.published || false}
         categories={selectedCategoryObjects}
+        imageUrl={imageUrl}
       />
     </>
   );

@@ -29,6 +29,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CreateIcon from "@mui/icons-material/Create";
 import ExploreIcon from "@mui/icons-material/Explore";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import ImageIcon from "@mui/icons-material/Image";
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -41,10 +42,11 @@ export default function HomePage() {
     limit: 9,
     page: 1,
   });
+
   const { data: categories } = trpc.category.getAll.useQuery();
+
   const posts = data?.posts || [];
 
-  // Filter posts by category
   const filteredPosts =
     selectedCategory === "all"
       ? posts
@@ -62,6 +64,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col">
+      {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-24">
         <div className="container">
           <div className="mx-auto max-w-3xl text-center">
@@ -93,6 +96,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Features Section */}
       <section className="py-12 border-b">
         <div className="container">
           <div className="grid gap-6 md:grid-cols-3">
@@ -129,9 +134,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Latest Posts Section */}
       <section className="py-12">
         <div className="container">
-
           <div className="mb-8 text-center">
             <h2 className="text-3xl font-bold tracking-tight mb-2">
               Latest Blog Posts
@@ -194,10 +200,25 @@ export default function HomePage() {
               found
             </p>
           </div>
+
+          {/* Posts Grid */}
           {filteredPosts.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredPosts.map((post) => (
-                <Card key={post.id} className="flex flex-col">
+                <Card key={post.id} className="flex flex-col overflow-hidden">
+                  {/* ✨ Show image or placeholder */}
+                  {post.imageUrl ? (
+                    <img
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="w-full h-48 object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-48 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                      <ImageIcon className="h-56 w-56 text-muted-foreground/30" />
+                    </div>
+                  )}
+
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="line-clamp-2">
@@ -273,6 +294,8 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      {/* CTA Section */}
       <section className="bg-primary/5 py-16">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">

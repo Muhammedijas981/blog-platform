@@ -3,7 +3,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -21,6 +20,7 @@ interface PostPreviewProps {
   title: string;
   content: string;
   published: boolean;
+  imageUrl?: string;
   categories?: { id: number; name: string }[];
 }
 
@@ -30,6 +30,7 @@ export function PostPreview({
   title,
   content,
   published,
+  imageUrl,
   categories = [],
 }: PostPreviewProps) {
   const wordCount = getWordCount(content);
@@ -39,31 +40,36 @@ export function PostPreview({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1">
-              <DialogTitle className="text-2xl mb-3">
-                {title || "Untitled Post"}
-              </DialogTitle>
-              {/* ✅ FIX: Remove DialogDescription wrapper, use plain div */}
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <CalendarTodayIcon className="h-4 w-4" />
-                    {formatDate(new Date())}
-                  </div>
-                  <Badge variant={published ? "default" : "secondary"}>
-                    {published ? "Published" : "Draft"}
-                  </Badge>
+          <div className="flex flex-col gap-2 w-full">
+            {/* Show image if present */}
+            {imageUrl && (
+              <img
+                src={imageUrl}
+                alt={title}
+                className="w-full h-64 object-cover rounded mb-4"
+              />
+            )}
+            <DialogTitle className="text-2xl mb-3">
+              {title || "Untitled Post"}
+            </DialogTitle>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <CalendarTodayIcon className="h-4 w-4" />
+                  {formatDate(new Date())}
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <TextFieldsIcon className="h-4 w-4" />
-                    {wordCount} words
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <AccessTimeIcon className="h-4 w-4" />
-                    {readingTime} min read
-                  </div>
+                <Badge variant={published ? "default" : "secondary"}>
+                  {published ? "Published" : "Draft"}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <TextFieldsIcon className="h-4 w-4" />
+                  {wordCount} words
+                </div>
+                <div className="flex items-center gap-1">
+                  <AccessTimeIcon className="h-4 w-4" />
+                  {readingTime} min read
                 </div>
               </div>
             </div>

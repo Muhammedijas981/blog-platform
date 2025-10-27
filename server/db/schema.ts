@@ -9,13 +9,25 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// Posts table
+// Posts table without image 
+// export const posts = pgTable("posts", {
+//   id: serial("id").primaryKey(),
+//   title: text("title").notNull(),
+//   content: text("content").notNull(),
+//   slug: text("slug").notNull().unique(),
+//   published: boolean("published").default(false).notNull(),
+//   createdAt: timestamp("created_at").defaultNow().notNull(),
+//   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+// });
+
+//Posts table with image
 export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   content: text("content").notNull(),
   slug: text("slug").notNull().unique(),
   published: boolean("published").default(false).notNull(),
+  imageUrl: text("image_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

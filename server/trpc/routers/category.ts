@@ -19,7 +19,6 @@ export const categoryRouter = router({
       .from(categories)
       .orderBy(categories.name);
 
-    // Get post count for each category
     const categoriesWithCount = await Promise.all(
       allCategories.map(async (category) => {
         const postCount = await ctx.db
@@ -53,7 +52,7 @@ export const categoryRouter = router({
       return category;
     }),
 
-  // Get category by slug with posts
+  // Get category by slug with posts (✨ UPDATED to include imageUrl)
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -66,13 +65,14 @@ export const categoryRouter = router({
         throw new Error("Category not found");
       }
 
-      // Get all posts for this category
+      // Get all posts for this category - ✨ NOW INCLUDING imageUrl
       const categoryPosts = await ctx.db
         .select({
           id: posts.id,
           title: posts.title,
           slug: posts.slug,
           content: posts.content,
+          imageUrl: posts.imageUrl, // ✨ ADD THIS LINE
           published: posts.published,
           createdAt: posts.createdAt,
           updatedAt: posts.updatedAt,
@@ -99,7 +99,6 @@ export const categoryRouter = router({
     .mutation(async ({ ctx, input }) => {
       const slug = generateSlug(input.name);
 
-      // Check if slug already exists
       const [existingCategory] = await ctx.db
         .select()
         .from(categories)
@@ -137,7 +136,6 @@ export const categoryRouter = router({
         updateData.name = input.name;
         updateData.slug = generateSlug(input.name);
 
-        // Check if new slug conflicts with existing categories
         const [existingCategory] = await ctx.db
           .select()
           .from(categories)
