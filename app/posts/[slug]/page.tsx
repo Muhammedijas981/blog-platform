@@ -89,9 +89,7 @@ export default function PostViewPage() {
 
   return (
     <div className="container max-w-6xl mx-auto py-6 md:py-8 px-4">
-      {/* Post Content Wrapper - constrains both back button and content */}
       <article className="mx-auto max-w-4xl">
-        {/* Back Button - now inside article wrapper */}
         <div className="mb-4">
           <Link href="/posts">
             <Button variant="ghost" size="sm" className="gap-1.5">
@@ -100,10 +98,7 @@ export default function PostViewPage() {
             </Button>
           </Link>
         </div>
-
-        {/* Post Card */}
         <Card className="border overflow-hidden">
-          {/* ✨ Full-width image at the top */}
           {post.imageUrl && (
             <img
               src={post.imageUrl}
@@ -111,9 +106,7 @@ export default function PostViewPage() {
               className="w-full h-64 md:h-80 object-cover"
             />
           )}
-
           <CardHeader className="space-y-3 pb-4">
-            {/* Status Badge & Actions */}
             <div className="flex items-start justify-between gap-3">
               <Badge
                 variant={post.published ? "default" : "secondary"}
@@ -121,8 +114,6 @@ export default function PostViewPage() {
               >
                 {post.published ? "Published" : "Draft"}
               </Badge>
-
-              {/* Action Buttons */}
               <div className="flex gap-2">
                 <Link href={`/posts/${post.slug}/edit`}>
                   <Button variant="outline" size="sm" className="gap-1.5">
@@ -164,13 +155,9 @@ export default function PostViewPage() {
                 </AlertDialog>
               </div>
             </div>
-
-            {/* Title */}
             <CardTitle className="text-2xl md:text-3xl leading-tight">
               {post.title}
             </CardTitle>
-
-            {/* Metadata */}
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
@@ -183,11 +170,8 @@ export default function PostViewPage() {
                   </span>
                 )}
               </div>
-              {/* Post Statistics */}
               <PostStats content={post.content} className="pt-1" />
             </div>
-
-            {/* Categories - WITHOUT icons */}
             {post.categories.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {post.categories.map((category) => (
@@ -212,8 +196,6 @@ export default function PostViewPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Related Categories Section */}
         {post.categories.length > 0 && (
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-3">Related Categories</h2>

@@ -70,7 +70,7 @@ export function PostForm({
       }
     }
 
-    // ✅ FIX: Convert empty string to undefined for imageUrl
+    // Convert empty string to undefined for imageUrl
     const submissionData = {
       title,
       content,
@@ -194,7 +194,6 @@ export function PostForm({
   return (
     <>
       <div className="space-y-5">
-        {/* Title */}
         <div className="space-y-2">
           <Label htmlFor="title" className="text-sm">
             Title *
@@ -208,8 +207,6 @@ export function PostForm({
             className="text-base"
           />
         </div>
-
-        {/* Header Image */}
         <div className="space-y-2">
           <Label htmlFor="image" className="text-sm">
             Header Image
@@ -254,8 +251,6 @@ export function PostForm({
             Recommended: 1200x600px, max 2MB. JPG, PNG, or WebP.
           </p>
         </div>
-
-        {/* Rich Text Editor */}
         <div className="space-y-2">
           <Label htmlFor="content" className="text-sm">
             Content *
@@ -267,8 +262,6 @@ export function PostForm({
             disabled={isLoading}
           />
         </div>
-
-        {/* Categories */}
         <div className="space-y-2">
           <Label className="text-sm flex items-center gap-1.5">
             <CategoryOutlinedIcon className="h-4 w-4" />
@@ -300,8 +293,6 @@ export function PostForm({
             Click categories to select/deselect them for this post
           </p>
         </div>
-
-        {/* Actions */}
         <div className="flex gap-3 pt-4 flex-wrap">
           <Button
             type="button"
@@ -341,8 +332,6 @@ export function PostForm({
           </Button>
         </div>
       </div>
-
-      {/* Preview Dialog */}
       <PostPreview
         open={showPreview}
         onOpenChange={setShowPreview}

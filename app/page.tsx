@@ -65,7 +65,6 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary/5 to-background py-12 md:py-20">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
@@ -97,8 +96,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Features Section */}
       <section className="py-10 border-b">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="grid gap-5 md:grid-cols-3">
@@ -135,8 +132,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Latest Posts Section */}
       <section className="py-10">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="mb-6 text-center">
@@ -147,8 +142,6 @@ export default function HomePage() {
               Browse our latest content and discover what's new
             </p>
           </div>
-
-          {/* Filters */}
           <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
               <Select
@@ -201,14 +194,11 @@ export default function HomePage() {
               found
             </p>
           </div>
-
-          {/* Posts Grid */}
           {filteredPosts.length > 0 ? (
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {filteredPosts.map((post) => (
                 <Link key={post.id} href={`/posts/${post.slug}`}>
                   <Card className="flex flex-col overflow-hidden border cursor-pointer hover:shadow-md transition-shadow h-full">
-                    {/* Show image or placeholder */}
                     {post.imageUrl ? (
                       <img
                         src={post.imageUrl}
@@ -249,8 +239,6 @@ export default function HomePage() {
                       <p className="text-xs text-muted-foreground line-clamp-3 mb-3">
                         {truncate(post.content.replace(/<[^>]*>/g, ""), 120)}
                       </p>
-
-                      {/* Categories without icons */}
                       {post.categories.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
                           {post.categories.map((category) => (
@@ -286,8 +274,6 @@ export default function HomePage() {
           )}
         </div>
       </section>
-
-      {/* CTA Section */}
       <section className="bg-primary/5 py-12">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="mx-auto max-w-xl text-center">

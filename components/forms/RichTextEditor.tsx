@@ -134,9 +134,7 @@ export function RichTextEditor({
 
   return (
     <div className="border rounded-lg overflow-hidden">
-      {/* Toolbar */}
       <div className="bg-muted/50 border-b p-2 flex flex-wrap gap-1">
-        {/* Text Formatting */}
         <div className="flex gap-1">
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBold().run()}
@@ -171,10 +169,7 @@ export function RichTextEditor({
             <StrikethroughSIcon className="h-4 w-4" />
           </ToolbarButton>
         </div>
-
         <Separator orientation="vertical" className="h-8" />
-
-        {/* Headings */}
         <div className="flex gap-1">
           <ToolbarButton
             onClick={() =>
@@ -207,10 +202,7 @@ export function RichTextEditor({
             <span className="text-sm font-bold">H3</span>
           </ToolbarButton>
         </div>
-
         <Separator orientation="vertical" className="h-8" />
-
-        {/* Lists */}
         <div className="flex gap-1">
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -229,10 +221,7 @@ export function RichTextEditor({
             <FormatListNumberedIcon className="h-4 w-4" />
           </ToolbarButton>
         </div>
-
         <Separator orientation="vertical" className="h-8" />
-
-        {/* Alignment */}
         <div className="flex gap-1">
           <ToolbarButton
             onClick={() => editor.chain().focus().setTextAlign("left").run()}
@@ -259,10 +248,7 @@ export function RichTextEditor({
             <FormatAlignRightIcon className="h-4 w-4" />
           </ToolbarButton>
         </div>
-
         <Separator orientation="vertical" className="h-8" />
-
-        {/* Special */}
         <div className="flex gap-1">
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
@@ -288,10 +274,7 @@ export function RichTextEditor({
             <HorizontalRuleIcon className="h-4 w-4" />
           </ToolbarButton>
         </div>
-
         <Separator orientation="vertical" className="h-8" />
-
-        {/* Undo/Redo */}
         <div className="flex gap-1">
           <ToolbarButton
             onClick={() => editor.chain().focus().undo().run()}
@@ -309,11 +292,7 @@ export function RichTextEditor({
           </ToolbarButton>
         </div>
       </div>
-
-      {/* Editor Content */}
       <EditorContent editor={editor} className="bg-background" />
-
-      {/* Character Count */}
       <div className="bg-muted/30 border-t px-4 py-2 text-xs text-muted-foreground flex justify-between">
         <span>{editor.getText().length} characters</span>
         <span>

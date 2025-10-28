@@ -29,12 +29,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container max-w-6xl mx-auto flex h-14 items-center justify-between px-4">
-        {/* Logo */}
         <Link href="/" className="flex items-center">
           <span className="text-lg font-bold">Blog Platform</span>
         </Link>
-
-        {/* Desktop Navigation & Actions - Right Side */}
         <div className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
             <Link
@@ -47,17 +44,10 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-
-          {/* Theme Toggle */}
           <ThemeToggle />
         </div>
-
-        {/* Mobile Actions */}
         <div className="flex md:hidden items-center gap-2">
-          {/* Theme Toggle - Always visible */}
           <ThemeToggle />
-
-          {/* Mobile Menu Button */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="sm" className="w-9 h-9 p-0">

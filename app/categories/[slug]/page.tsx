@@ -65,7 +65,6 @@ export default function CategoryViewPage() {
 
   return (
     <div className="container max-w-6xl mx-auto py-6 md:py-8 px-4">
-      {/* Back Button */}
       <div className="mb-4">
         <Link href="/posts">
           <Button variant="ghost" size="sm" className="gap-1.5">
@@ -74,8 +73,6 @@ export default function CategoryViewPage() {
           </Button>
         </Link>
       </div>
-
-      {/* Category Header */}
       <div className="mb-6">
         <Card className="border">
           <CardHeader>
@@ -101,19 +98,14 @@ export default function CategoryViewPage() {
           </CardHeader>
         </Card>
       </div>
-
       <Separator className="mb-6" />
-
-      {/* Posts Section */}
       <div>
         <h2 className="text-lg font-semibold mb-4">Posts in {category.name}</h2>
-
         {category.posts.length > 0 ? (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {category.posts.map((post) => (
               <Link key={post.id} href={`/posts/${post.slug}`}>
                 <Card className="flex flex-col overflow-hidden border cursor-pointer hover:shadow-md transition-shadow h-full">
-                  {/* Show image or placeholder */}
                   {post.imageUrl ? (
                     <img
                       src={post.imageUrl}
@@ -176,8 +168,6 @@ export default function CategoryViewPage() {
           </Card>
         )}
       </div>
-
-      {/* Manage Category Section */}
       <div className="mt-8">
         <Card className="border">
           <CardHeader className="pb-3">

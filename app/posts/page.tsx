@@ -81,7 +81,6 @@ export default function PostsPage() {
 
   return (
     <div className="container max-w-6xl mx-auto py-8 md:py-10 px-4">
-      {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">All Blog Posts</h1>
@@ -96,8 +95,6 @@ export default function PostsPage() {
           </Button>
         </Link>
       </div>
-
-      {/* Search Bar */}
       <div className="mb-5">
         <div className="relative">
           <SearchOutlinedIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -109,8 +106,6 @@ export default function PostsPage() {
           />
         </div>
       </div>
-
-      {/* Filters */}
       <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -158,15 +153,12 @@ export default function PostsPage() {
           {pagination?.total !== 1 ? "s" : ""}
         </p>
       </div>
-
-      {/* Posts Grid */}
       {filteredPosts.length > 0 ? (
         <>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {filteredPosts.map((post) => (
               <Link key={post.id} href={`/posts/${post.slug}`}>
                 <Card className="flex flex-col overflow-hidden border cursor-pointer hover:shadow-md transition-shadow h-full">
-                  {/* Show image or placeholder */}
                   {post.imageUrl ? (
                     <img
                       src={post.imageUrl}
@@ -207,8 +199,6 @@ export default function PostsPage() {
                     <p className="text-xs text-muted-foreground line-clamp-3 mb-3">
                       {truncate(post.content.replace(/<[^>]*>/g, ""), 120)}
                     </p>
-
-                    {/* Categories without icons - shown at bottom */}
                     {post.categories.length > 0 && (
                       <div className="flex flex-wrap gap-1.5">
                         {post.categories.map((category) => (
@@ -227,8 +217,6 @@ export default function PostsPage() {
               </Link>
             ))}
           </div>
-
-          {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
             <Pagination
               currentPage={currentPage}

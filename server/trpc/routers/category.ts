@@ -65,14 +65,14 @@ export const categoryRouter = router({
         throw new Error("Category not found");
       }
 
-      // Get all posts for this category - ✨ NOW INCLUDING imageUrl
+      // Get all posts for this category INCLUDING imageUrl
       const categoryPosts = await ctx.db
         .select({
           id: posts.id,
           title: posts.title,
           slug: posts.slug,
           content: posts.content,
-          imageUrl: posts.imageUrl, // ✨ ADD THIS LINE
+          imageUrl: posts.imageUrl, 
           published: posts.published,
           createdAt: posts.createdAt,
           updatedAt: posts.updatedAt,

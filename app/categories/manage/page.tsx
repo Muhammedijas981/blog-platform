@@ -117,7 +117,6 @@ export default function CategoryManagePage() {
 
   return (
     <div className="container max-w-6xl mx-auto py-8 md:py-10 px-4">
-      {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
@@ -127,8 +126,6 @@ export default function CategoryManagePage() {
             Create and organize categories for your blog posts
           </p>
         </div>
-
-        {/* Create Category Dialog */}
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button size="sm">
@@ -187,10 +184,7 @@ export default function CategoryManagePage() {
           </DialogContent>
         </Dialog>
       </div>
-
       <Separator className="mb-6" />
-
-      {/* Categories Grid */}
       {categories && categories.length > 0 ? (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => (
@@ -212,7 +206,6 @@ export default function CategoryManagePage() {
                 )}
               </CardHeader>
               <CardFooter className="gap-2 pt-3">
-                {/* Edit Dialog */}
                 <Dialog
                   open={editingCategory?.id === category.id}
                   onOpenChange={(open) => {
@@ -290,9 +283,6 @@ export default function CategoryManagePage() {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-
-                {/* Delete Alert Dialog */}
-                {/* Delete Alert Dialog */}
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button

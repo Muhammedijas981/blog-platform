@@ -115,7 +115,6 @@ export default function EditPostPage() {
   return (
     <div className="container max-w-6xl mx-auto py-6 md:py-8 px-4">
       <div className="mx-auto max-w-4xl">
-        {/* Back Button */}
         <div className="mb-4">
           <Link href={`/posts/${post.slug}`}>
             <Button variant="ghost" size="sm" className="gap-1.5">

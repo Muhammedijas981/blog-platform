@@ -41,7 +41,6 @@ export function PostPreview({
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex flex-col gap-2 w-full">
-            {/* Show image if present */}
             {imageUrl && (
               <img
                 src={imageUrl}
@@ -75,10 +74,7 @@ export function PostPreview({
             </div>
           </div>
         </DialogHeader>
-
         <Separator className="my-4" />
-
-        {/* Categories */}
         {categories.length > 0 && (
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
@@ -91,8 +87,6 @@ export function PostPreview({
             </div>
           </div>
         )}
-
-        {/* Content Preview */}
         <div
           className="prose prose-neutral dark:prose-invert max-w-none"
           dangerouslySetInnerHTML={{

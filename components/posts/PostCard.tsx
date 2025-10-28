@@ -19,7 +19,6 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 export function PostCard({ post }: { post: any }) {
   return (
     <Card className="flex flex-col">
-      {/* Show card image if available */}
       {post.imageUrl && (
         <img
           src={post.imageUrl}
