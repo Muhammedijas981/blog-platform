@@ -2,7 +2,7 @@
 
 **Full-Stack Developer Position Submission - Kapybara HQ**
 
-A modern, production-ready blogging platform built with Next.js 16, featuring type-safe APIs, rich text editing, category management, and image uploads. Developed as part of the technical assessment for the Full-Stack Developer position at Kapybara HQ.
+A production-ready blogging platform built with Next.js 16, featuring type-safe APIs, rich text editing, category management, and image uploads. Developed as part of the technical assessment for the Full-Stack Developer position at Kapybara HQ.
 
 ---
 
@@ -338,20 +338,9 @@ This creates all tables in your Neon database based on `server/db/schema.ts`.
 | tRPC (vs REST API boilerplate)       | ~2 hours       |
 | **Total Saved:**                     | **~8-9 hours** |
 
----
-
-## 🚀 Deployment
-
-**Platform:** Vercel (recommended by assessment)
-
-**Deployment URL:** [your-app.vercel.app](#)
-
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 This project was built as part of the technical assessment for the **Full-Stack Developer** position at **Kapybara HQ**.
-
----
 
 ## 📄 License
 
