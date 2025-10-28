@@ -8,7 +8,7 @@ A production-ready blogging platform built with Next.js 16, featuring type-safe 
 
 ## 🚀 Live Demo
 
-**[View Live Application →](your-deployment-url-here)**
+**[View Live Application →](https://blog.ijas.space/)**
 
 > Deployed on Vercel with Neon PostgreSQL database
 
@@ -23,7 +23,6 @@ A production-ready blogging platform built with Next.js 16, featuring type-safe 
 5. [Architecture Decisions](#-architecture-decisions)
 6. [Environment Setup](#-environment-setup)
 7. [Time Breakdown](#-time-breakdown)
-8. [Time Breakdown](#-time-breakdown)
 
 
 ---
