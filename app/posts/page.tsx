@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
@@ -23,13 +22,12 @@ import {
 import { Input } from "@/components/ui/Input";
 import { Pagination } from "@/components/ui/pagination";
 import { formatDate, truncate, calculateReadingTime } from "@/lib/utils";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import EditIcon from "@mui/icons-material/Edit";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import CategoryIcon from "@mui/icons-material/Category";
-import SearchIcon from "@mui/icons-material/Search";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import CircularProgress from "@mui/icons-material/Loop";
 
 export default function PostsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -72,34 +70,34 @@ export default function PostsPage() {
 
   if (postsLoading) {
     return (
-      <div className="container py-12">
-        <div className="text-center">Loading posts...</div>
+      <div className="container max-w-6xl mx-auto py-12 px-4">
+        <div className="flex flex-col items-center justify-center gap-3">
+          <CircularProgress className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading posts...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container py-8 md:py-12">
-      {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
+    <div className="container max-w-6xl mx-auto py-8 md:py-10 px-4">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">All Blog Posts</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl font-bold tracking-tight">All Blog Posts</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Browse and manage all your blog posts
           </p>
         </div>
         <Link href="/posts/new">
-          <Button>
-            <AddCircleIcon className="mr-2 h-4 w-4" />
+          <Button size="sm">
+            <AddCircleOutlineIcon className="mr-2 h-4 w-4" />
             New Post
           </Button>
         </Link>
       </div>
-
-      {/* Search Bar */}
-      <div className="mb-6">
+      <div className="mb-5">
         <div className="relative">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <SearchOutlinedIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search posts by title or content..."
             value={searchQuery}
@@ -108,12 +106,10 @@ export default function PostsPage() {
           />
         </div>
       </div>
-
-      {/* Filters */}
-      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-4">
+      <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-3">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -138,10 +134,10 @@ export default function PostsPage() {
               if (value === "all") setPublishedFilter(undefined);
               else if (value === "published") setPublishedFilter(true);
               else setPublishedFilter(false);
-              setCurrentPage(1); // Reset to page 1 when changing filter
+              setCurrentPage(1);
             }}
           >
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -152,82 +148,75 @@ export default function PostsPage() {
           </Select>
         </div>
 
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {filteredPosts.length} of {pagination?.total || 0} post
           {pagination?.total !== 1 ? "s" : ""}
         </p>
       </div>
-
-      {/* Posts Grid */}
       {filteredPosts.length > 0 ? (
         <>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {filteredPosts.map((post) => (
-              <Card key={post.id} className="flex flex-col">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="line-clamp-2">{post.title}</CardTitle>
-                    <Badge variant={post.published ? "default" : "secondary"}>
-                      {post.published ? "Published" : "Draft"}
-                    </Badge>
-                  </div>
-                  <div className="space-y-1">
-                    <CardDescription className="flex items-center gap-1 text-xs">
-                      <CalendarTodayIcon className="h-3 w-3" />
-                      {formatDate(post.createdAt)}
-                    </CardDescription>
-                    <CardDescription className="flex items-center gap-1 text-xs">
-                      <AccessTimeIcon className="h-3 w-3" />
-                      {calculateReadingTime(post.content)} min read
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="flex-1">
-                  <div
-                    className="text-sm text-muted-foreground line-clamp-3"
-                    dangerouslySetInnerHTML={{
-                      __html: truncate(
-                        post.content.replace(/<[^>]*>/g, ""),
-                        150
-                      ),
-                    }}
-                  />
-
-                  {post.categories.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {post.categories.map((category) => (
-                        <Badge
-                          key={category.id}
-                          variant="outline"
-                          className="text-xs"
-                        >
-                          <CategoryIcon className="mr-1 h-3 w-3" />
-                          {category.name}
-                        </Badge>
-                      ))}
+              <Link key={post.id} href={`/posts/${post.slug}`}>
+                <Card className="flex flex-col overflow-hidden border cursor-pointer hover:shadow-md transition-shadow h-full">
+                  {post.imageUrl ? (
+                    <img
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="w-full h-40 object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-40 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                      <ImageOutlinedIcon className="h-12 w-12 text-muted-foreground/30" />
                     </div>
                   )}
-                </CardContent>
 
-                <CardFooter className="gap-2">
-                  <Link href={`/posts/${post.slug}`} className="flex-1">
-                    <Button variant="default" className="w-full gap-2">
-                      <VisibilityIcon className="h-4 w-4" />
-                      View
-                    </Button>
-                  </Link>
-                  <Link href={`/posts/${post.slug}/edit`}>
-                    <Button variant="outline" size="icon">
-                      <EditIcon className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <CardTitle className="text-base line-clamp-2">
+                        {post.title}
+                      </CardTitle>
+                      <Badge
+                        variant={post.published ? "default" : "secondary"}
+                        className="text-xs shrink-0"
+                      >
+                        {post.published ? "Published" : "Draft"}
+                      </Badge>
+                    </div>
+                    <div className="space-y-1">
+                      <CardDescription className="flex items-center gap-1 text-xs">
+                        <CalendarTodayOutlinedIcon className="h-3 w-3" />
+                        {formatDate(post.createdAt)}
+                      </CardDescription>
+                      <CardDescription className="flex items-center gap-1 text-xs">
+                        <AccessTimeOutlinedIcon className="h-3 w-3" />
+                        {calculateReadingTime(post.content)} min read
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="flex-1 pt-0 pb-4">
+                    <p className="text-xs text-muted-foreground line-clamp-3 mb-3">
+                      {truncate(post.content.replace(/<[^>]*>/g, ""), 120)}
+                    </p>
+                    {post.categories.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {post.categories.map((category) => (
+                          <Badge
+                            key={category.id}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {category.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
-
-          {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
             <Pagination
               currentPage={currentPage}
@@ -237,10 +226,10 @@ export default function PostsPage() {
           )}
         </>
       ) : (
-        <Card>
+        <Card className="border">
           <CardHeader>
-            <CardTitle>No Posts Found</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-lg">No Posts Found</CardTitle>
+            <CardDescription className="text-sm">
               {searchQuery
                 ? `No posts match your search "${searchQuery}"`
                 : "Create your first post to get started"}
@@ -248,13 +237,17 @@ export default function PostsPage() {
           </CardHeader>
           <CardContent>
             {searchQuery ? (
-              <Button variant="outline" onClick={() => setSearchQuery("")}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSearchQuery("")}
+              >
                 Clear Search
               </Button>
             ) : (
               <Link href="/posts/new">
-                <Button>
-                  <AddCircleIcon className="mr-2 h-4 w-4" />
+                <Button size="sm">
+                  <AddCircleOutlineIcon className="mr-2 h-4 w-4" />
                   Create First Post
                 </Button>
               </Link>

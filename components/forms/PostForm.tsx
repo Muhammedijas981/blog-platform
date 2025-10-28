@@ -8,21 +8,25 @@ import { RichTextEditor } from "@/components/forms/RichTextEditor";
 import { PostPreview } from "@/components/forms/PostPreview";
 import { trpc } from "@/trpc/client";
 import { Badge } from "@/components/ui/Badge";
-import SaveIcon from "@mui/icons-material/Save";
-import PublishIcon from "@mui/icons-material/Publish";
-import CategoryIcon from "@mui/icons-material/Category";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import toast from "react-hot-toast";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import PublishOutlinedIcon from "@mui/icons-material/PublishOutlined";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 interface PostFormProps {
   defaultValues?: {
     title: string;
     content: string;
+    imageUrl?: string;
     published: boolean;
     categoryIds: number[];
   };
   onSubmit: (data: {
     title: string;
     content: string;
+    imageUrl?: string;
     published: boolean;
     categoryIds: number[];
   }) => Promise<void>;
@@ -40,20 +44,140 @@ export function PostForm({
     defaultValues?.categoryIds || []
   );
   const [showPreview, setShowPreview] = useState(false);
+  const [imageUrl, setImageUrl] = useState(defaultValues?.imageUrl || "");
+  const [uploading, setUploading] = useState(false);
 
   const { data: categories } = trpc.category.getAll.useQuery();
 
   const handleSubmit = async (published: boolean) => {
-    if (!title.trim() || !content.trim()) {
+    // Validation
+    if (!title.trim()) {
+      toast.error("Please enter a title");
       return;
     }
 
-    await onSubmit({
+    if (!content.trim()) {
+      toast.error("Please add some content");
+      return;
+    }
+
+    // Additional validation for publishing
+    if (published) {
+      const plainText = content.replace(/<[^>]*>/g, "").trim();
+      if (plainText.length < 50) {
+        toast.error("Content must be at least 50 characters to publish");
+        return;
+      }
+    }
+
+    // Convert empty string to undefined for imageUrl
+    const submissionData = {
       title,
       content,
+      imageUrl: imageUrl.trim() ? imageUrl : undefined, // Only send URL if it exists
       published,
       categoryIds: selectedCategories,
-    });
+    };
+
+    try {
+      await onSubmit(submissionData);
+    } catch (error: any) {
+      // Handle specific validation errors from tRPC
+      if (error.message.includes("Must be a valid URL")) {
+        toast.error("Please provide a valid image URL or remove the image");
+      } else {
+        // Let the parent component handle other errors
+        throw error;
+      }
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image size must be less than 2MB");
+      e.target.value = ""; // Reset file input
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file");
+      e.target.value = ""; // Reset file input
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "blog_uploads");
+
+    try {
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dokjwzhot/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(
+          errorData.error?.message || "Upload failed. Please try again."
+        );
+      }
+
+      const data = await res.json();
+
+      if (data.error) {
+        throw new Error(data.error.message || "Upload failed");
+      }
+
+      // Validate that we got a secure URL back
+      if (!data.secure_url || !data.secure_url.startsWith("https://")) {
+        throw new Error("Invalid image URL received from server");
+      }
+
+      setImageUrl(data.secure_url);
+      toast.success("Image uploaded successfully!");
+    } catch (error: any) {
+      console.error("Upload error:", error);
+
+      // Provide specific error messages
+      if (
+        error.message.includes("network") ||
+        error.message.includes("fetch")
+      ) {
+        toast.error(
+          "Network error. Please check your connection and try again."
+        );
+      } else if (error.message.includes("preset")) {
+        toast.error("Upload configuration error. Please contact support.");
+      } else {
+        toast.error(
+          error.message || "Failed to upload image. Please try again."
+        );
+      }
+
+      // Clear the file input on error
+      e.target.value = "";
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageUrl("");
+    // Clear the file input
+    const fileInput = document.getElementById("image") as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+    toast.success("Image removed");
   };
 
   const toggleCategory = (categoryId: number) => {
@@ -69,20 +193,68 @@ export function PostForm({
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="title">Title *</Label>
+          <Label htmlFor="title" className="text-sm">
+            Title *
+          </Label>
           <Input
             id="title"
             placeholder="Enter post title..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={isLoading}
-            className="text-lg"
+            className="text-base"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="content">Content *</Label>
+          <Label htmlFor="image" className="text-sm">
+            Header Image
+          </Label>
+          <div className="flex items-center gap-3">
+            <Input
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              id="image"
+              disabled={isLoading || uploading}
+              onChange={handleImageUpload}
+              className="flex-1"
+            />
+            {imageUrl && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleRemoveImage}
+                disabled={isLoading || uploading}
+                title="Remove image"
+              >
+                <DeleteOutlineIcon className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          {imageUrl && (
+            <div className="relative border rounded overflow-hidden bg-muted/20">
+              <img
+                src={imageUrl}
+                alt="Header preview"
+                className="w-full h-auto max-h-48 object-contain"
+              />
+            </div>
+          )}
+          {uploading && (
+            <div className="text-xs text-primary font-medium animate-pulse">
+              Uploading image, please wait...
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Recommended: 1200x600px, max 2MB. JPG, PNG, or WebP.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="content" className="text-sm">
+            Content *
+          </Label>
           <RichTextEditor
             content={content}
             onChange={setContent}
@@ -91,8 +263,8 @@ export function PostForm({
           />
         </div>
         <div className="space-y-2">
-          <Label>
-            <CategoryIcon className="inline h-4 w-4 mr-1" />
+          <Label className="text-sm flex items-center gap-1.5">
+            <CategoryOutlinedIcon className="h-4 w-4" />
             Categories
           </Label>
           <div className="flex flex-wrap gap-2 p-4 border rounded-md min-h-[60px]">
@@ -105,7 +277,7 @@ export function PostForm({
                       ? "default"
                       : "outline"
                   }
-                  className="cursor-pointer"
+                  className="cursor-pointer text-xs"
                   onClick={() => toggleCategory(category.id)}
                 >
                   {category.name}
@@ -121,34 +293,42 @@ export function PostForm({
             Click categories to select/deselect them for this post
           </p>
         </div>
-        <div className="flex gap-4 pt-4 flex-wrap">
+        <div className="flex gap-3 pt-4 flex-wrap">
           <Button
             type="button"
             onClick={() => setShowPreview(true)}
             disabled={!title.trim() || !content.trim()}
             variant="secondary"
-            className="gap-2"
+            size="sm"
+            className="gap-1.5"
           >
-            <VisibilityIcon className="h-4 w-4" />
+            <VisibilityOutlinedIcon className="h-4 w-4" />
             Preview
           </Button>
 
           <Button
             onClick={() => handleSubmit(false)}
-            disabled={isLoading || !title.trim() || !content.trim()}
+            disabled={
+              isLoading || !title.trim() || !content.trim() || uploading
+            }
             variant="outline"
-            className="flex-1 gap-2"
+            size="sm"
+            className="flex-1 gap-1.5"
           >
-            <SaveIcon className="h-4 w-4" />
-            Save as Draft
+            <SaveOutlinedIcon className="h-4 w-4" />
+            {isLoading ? "Saving..." : "Save as Draft"}
           </Button>
+
           <Button
             onClick={() => handleSubmit(true)}
-            disabled={isLoading || !title.trim() || !content.trim()}
-            className="flex-1 gap-2"
+            disabled={
+              isLoading || !title.trim() || !content.trim() || uploading
+            }
+            size="sm"
+            className="flex-1 gap-1.5"
           >
-            <PublishIcon className="h-4 w-4" />
-            Publish
+            <PublishOutlinedIcon className="h-4 w-4" />
+            {isLoading ? "Publishing..." : "Publish"}
           </Button>
         </div>
       </div>
@@ -159,6 +339,7 @@ export function PostForm({
         content={content}
         published={defaultValues?.published || false}
         categories={selectedCategoryObjects}
+        imageUrl={imageUrl}
       />
     </>
   );

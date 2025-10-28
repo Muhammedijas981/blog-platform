@@ -1,65 +1,82 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import HomeIcon from "@mui/icons-material/Home";
-import ArticleIcon from "@mui/icons-material/Article";
-import CategoryIcon from "@mui/icons-material/Category";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 
 export function Header() {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => pathname === path;
 
+  const navLinks = [
+    { href: "/", label: "Home" },
+    { href: "/posts", label: "Posts" },
+    { href: "/categories/manage", label: "Categories" },
+  ];
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <ArticleIcon className="h-6 w-6" />
-          <span className="text-xl font-bold">Blog Platform</span>
+      <div className="container max-w-6xl mx-auto flex h-14 items-center justify-between px-4">
+        <Link href="/" className="flex items-center">
+          <span className="text-lg font-bold">Blog Platform</span>
         </Link>
-        <nav className="hidden md:flex items-center gap-6">
-          <Link
-            href="/"
-            className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${
-              isActive("/") ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <HomeIcon className="h-4 w-4" />
-            Home
-          </Link>
-          <Link
-            href="/posts"
-            className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${
-              isActive("/posts") ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <ArticleIcon className="h-4 w-4" />
-            Posts
-          </Link>
-          <Link
-            href="/categories/manage"
-            className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${
-              isActive("/categories/manage")
-                ? "text-primary"
-                : "text-muted-foreground"
-            }`}
-          >
-            <CategoryIcon className="h-4 w-4" />
-            Categories
-          </Link>
-        </nav>
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-6">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive(link.href) ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
           <ThemeToggle />
-          <Link href="/posts/new">
-            <Button className="gap-2">
-              <AddCircleIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">New Post</span>
-            </Button>
-          </Link>
+        </div>
+        <div className="flex md:hidden items-center gap-2">
+          <ThemeToggle />
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-9 h-9 p-0">
+                <MenuOutlinedIcon className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-64">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-4 mt-6">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`text-base font-medium transition-colors hover:text-primary py-2 ${
+                      isActive(link.href)
+                        ? "text-primary"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

@@ -3,8 +3,8 @@
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 
 export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
@@ -16,8 +16,8 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon" disabled>
-        <LightModeIcon className="h-5 w-5" />
+      <Button variant="ghost" size="sm" disabled className="w-9 h-9 p-0">
+        <LightModeOutlinedIcon className="h-4 w-4" />
       </Button>
     );
   }
@@ -25,14 +25,15 @@ export function ThemeToggle() {
   return (
     <Button
       variant="ghost"
-      size="icon"
+      size="sm"
+      className="w-9 h-9 p-0"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
     >
       {theme === "dark" ? (
-        <LightModeIcon className="h-5 w-5" />
+        <LightModeOutlinedIcon className="h-4 w-4" />
       ) : (
-        <DarkModeIcon className="h-5 w-5" />
+        <DarkModeOutlinedIcon className="h-4 w-4" />
       )}
     </Button>
   );

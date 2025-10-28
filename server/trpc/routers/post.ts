@@ -13,8 +13,7 @@ function generateSlug(title: string): string {
 }
 
 export const postRouter = router({
-  // Get all posts with optional filters
-  // getAll query to support pagination
+  // Get all posts with pagination and filtering
   getAll: publicProcedure
     .input(
       z
@@ -35,7 +34,7 @@ export const postRouter = router({
         conditions.push(eq(posts.published, input.published));
       }
 
-      // Get total count
+      // Get total count for pagination
       const totalPosts = await ctx.db
         .select()
         .from(posts)
@@ -97,7 +96,6 @@ export const postRouter = router({
         throw new Error("Post not found");
       }
 
-      // Get categories for this post
       const postCategories = await ctx.db
         .select({
           id: categories.id,
@@ -128,7 +126,6 @@ export const postRouter = router({
         throw new Error("Post not found");
       }
 
-      // Get categories for this post
       const postCategories = await ctx.db
         .select({
           id: categories.id,
@@ -146,12 +143,13 @@ export const postRouter = router({
       };
     }),
 
-  // Create post
+  // Create post (supports image upload)
   create: publicProcedure
     .input(
       z.object({
         title: z.string().min(1, "Title is required"),
         content: z.string().min(1, "Content is required"),
+        imageUrl: z.string().url("Must be a valid URL").optional().nullable(),
         published: z.boolean().optional().default(false),
         categoryIds: z.array(z.number()).optional(),
       })
@@ -164,7 +162,6 @@ export const postRouter = router({
         .select()
         .from(posts)
         .where(eq(posts.slug, slug));
-
       if (existingPost) {
         throw new Error("A post with this title already exists");
       }
@@ -175,6 +172,7 @@ export const postRouter = router({
         .values({
           title: input.title,
           content: input.content,
+          imageUrl: input.imageUrl ?? null,
           slug,
           published: input.published,
         })
@@ -193,13 +191,14 @@ export const postRouter = router({
       return newPost;
     }),
 
-  // Update post
+  // Update post (supports image change)
   update: publicProcedure
     .input(
       z.object({
         id: z.number(),
         title: z.string().min(1).optional(),
         content: z.string().min(1).optional(),
+        imageUrl: z.string().url("Must be a valid URL").optional().nullable(),
         published: z.boolean().optional(),
         categoryIds: z.array(z.number()).optional(),
       })
@@ -212,9 +211,20 @@ export const postRouter = router({
       if (input.title) {
         updateData.title = input.title;
         updateData.slug = generateSlug(input.title);
+
+        // Check if new slug conflicts with existing posts
+        const [existingPost] = await ctx.db
+          .select()
+          .from(posts)
+          .where(and(eq(posts.slug, updateData.slug), eq(posts.id, input.id)));
+
+        if (existingPost && existingPost.id !== input.id) {
+          throw new Error("A post with this title already exists");
+        }
       }
       if (input.content !== undefined) updateData.content = input.content;
       if (input.published !== undefined) updateData.published = input.published;
+      if ("imageUrl" in input) updateData.imageUrl = input.imageUrl ?? null;
 
       const [updatedPost] = await ctx.db
         .update(posts)
@@ -249,5 +259,54 @@ export const postRouter = router({
     .mutation(async ({ ctx, input }) => {
       await ctx.db.delete(posts).where(eq(posts.id, input.id));
       return { success: true, id: input.id };
+    }),
+
+  // Optional: getAllSimple (for home page without pagination)
+  getAllSimple: publicProcedure
+    .input(
+      z
+        .object({
+          published: z.boolean().optional(),
+          limit: z.number().min(1).max(100).optional().default(50),
+        })
+        .optional()
+    )
+    .query(async ({ ctx, input }) => {
+      const conditions = [];
+
+      if (input?.published !== undefined) {
+        conditions.push(eq(posts.published, input.published));
+      }
+
+      const allPosts = await ctx.db
+        .select()
+        .from(posts)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(posts.createdAt))
+        .limit(input?.limit || 50);
+
+      const postsWithCategories = await Promise.all(
+        allPosts.map(async (post) => {
+          const postCategories = await ctx.db
+            .select({
+              id: categories.id,
+              name: categories.name,
+              slug: categories.slug,
+            })
+            .from(postsToCategories)
+            .innerJoin(
+              categories,
+              eq(postsToCategories.categoryId, categories.id)
+            )
+            .where(eq(postsToCategories.postId, post.id));
+
+          return {
+            ...post,
+            categories: postCategories,
+          };
+        })
+      );
+
+      return postsWithCategories;
     }),
 });

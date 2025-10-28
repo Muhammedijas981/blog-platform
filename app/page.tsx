@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
@@ -21,14 +20,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatDate, truncate, calculateReadingTime } from "@/lib/utils";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import EditIcon from "@mui/icons-material/Edit";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import CategoryIcon from "@mui/icons-material/Category";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import CreateIcon from "@mui/icons-material/Create";
-import ExploreIcon from "@mui/icons-material/Explore";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
+import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
+import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import CircularProgress from "@mui/icons-material/Loop";
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -41,10 +40,11 @@ export default function HomePage() {
     limit: 9,
     page: 1,
   });
+
   const { data: categories } = trpc.category.getAll.useQuery();
+
   const posts = data?.posts || [];
 
-  // Filter posts by category
   const filteredPosts =
     selectedCategory === "all"
       ? posts
@@ -54,38 +54,41 @@ export default function HomePage() {
 
   if (postsLoading) {
     return (
-      <div className="container py-12">
-        <div className="text-center">Loading posts...</div>
+      <div className="container max-w-6xl mx-auto py-12 px-4">
+        <div className="flex flex-col items-center justify-center gap-3">
+          <CircularProgress className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading posts...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col">
-      <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-24">
-        <div className="container">
-          <div className="mx-auto max-w-3xl text-center">
-            <Badge className="mb-4" variant="secondary">
+      <section className="bg-gradient-to-b from-primary/5 to-background py-12 md:py-20">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="mx-auto max-w-2xl text-center">
+            <Badge className="mb-3" variant="secondary">
               Welcome to Blog Platform
             </Badge>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl mb-6">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl mb-4">
               Discover Insightful Stories & Articles
             </h1>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-base text-muted-foreground mb-6 max-w-xl mx-auto">
               Explore a world of knowledge through our carefully curated
               collection of blog posts. From technology to lifestyle, find
               content that inspires and informs.
             </p>
-            <div className="flex gap-4 justify-center flex-wrap">
+            <div className="flex gap-3 justify-center flex-wrap">
               <Link href="/posts/new">
-                <Button size="lg" className="gap-2">
-                  <CreateIcon className="h-5 w-5" />
+                <Button size="default" className="gap-2">
+                  <CreateOutlinedIcon className="h-4 w-4" />
                   Start Writing
                 </Button>
               </Link>
               <Link href="/posts">
-                <Button size="lg" variant="outline" className="gap-2">
-                  <ExploreIcon className="h-5 w-5" />
+                <Button size="default" variant="outline" className="gap-2">
+                  <ExploreOutlinedIcon className="h-4 w-4" />
                   Explore Posts
                 </Button>
               </Link>
@@ -93,34 +96,34 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      <section className="py-12 border-b">
-        <div className="container">
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CreateIcon className="h-8 w-8 mb-2 text-primary" />
-                <CardTitle>Rich Text Editor</CardTitle>
-                <CardDescription>
+      <section className="py-10 border-b">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="grid gap-5 md:grid-cols-3">
+            <Card className="border">
+              <CardHeader className="pb-3">
+                <CreateOutlinedIcon className="h-7 w-7 mb-2 text-primary" />
+                <CardTitle className="text-base">Rich Text Editor</CardTitle>
+                <CardDescription className="text-sm">
                   Create beautiful content with our powerful editor featuring
                   formatting, lists, and more
                 </CardDescription>
               </CardHeader>
             </Card>
-            <Card>
-              <CardHeader>
-                <CategoryIcon className="h-8 w-8 mb-2 text-primary" />
-                <CardTitle>Category Management</CardTitle>
-                <CardDescription>
+            <Card className="border">
+              <CardHeader className="pb-3">
+                <CategoryOutlinedIcon className="h-7 w-7 mb-2 text-primary" />
+                <CardTitle className="text-base">Category Management</CardTitle>
+                <CardDescription className="text-sm">
                   Organize posts with categories and make content easy to
                   discover for your readers
                 </CardDescription>
               </CardHeader>
             </Card>
-            <Card>
-              <CardHeader>
-                <TrendingUpIcon className="h-8 w-8 mb-2 text-primary" />
-                <CardTitle>Reading Analytics</CardTitle>
-                <CardDescription>
+            <Card className="border">
+              <CardHeader className="pb-3">
+                <TrendingUpOutlinedIcon className="h-7 w-7 mb-2 text-primary" />
+                <CardTitle className="text-base">Reading Analytics</CardTitle>
+                <CardDescription className="text-sm">
                   Track word count and estimated reading time for every post
                   automatically
                 </CardDescription>
@@ -129,26 +132,23 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      <section className="py-12">
-        <div className="container">
-
-          <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold tracking-tight mb-2">
+      <section className="py-10">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="mb-6 text-center">
+            <h2 className="text-2xl font-bold tracking-tight mb-2">
               Latest Blog Posts
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Browse our latest content and discover what's new
             </p>
           </div>
-
-          {/* Filters */}
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-4">
+          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3">
               <Select
                 value={selectedCategory}
                 onValueChange={setSelectedCategory}
               >
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -178,7 +178,7 @@ export default function HomePage() {
                   else setPublishedFilter(false);
                 }}
               >
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -189,103 +189,104 @@ export default function HomePage() {
               </Select>
             </div>
 
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {filteredPosts.length} post{filteredPosts.length !== 1 ? "s" : ""}{" "}
               found
             </p>
           </div>
           {filteredPosts.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {filteredPosts.map((post) => (
-                <Card key={post.id} className="flex flex-col">
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="line-clamp-2">
-                        {post.title}
-                      </CardTitle>
-                      <Badge variant={post.published ? "default" : "secondary"}>
-                        {post.published ? "Published" : "Draft"}
-                      </Badge>
-                    </div>
-                    <div className="space-y-1">
-                      <CardDescription className="flex items-center gap-1 text-xs">
-                        <CalendarTodayIcon className="h-3 w-3" />
-                        {formatDate(post.createdAt)}
-                      </CardDescription>
-                      <CardDescription className="flex items-center gap-1 text-xs">
-                        <AccessTimeIcon className="h-3 w-3" />
-                        {calculateReadingTime(post.content)} min read
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="flex-1">
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {truncate(post.content.replace(/<[^>]*>/g, ""), 150)}
-                    </p>
-
-                    {post.categories.length > 0 && (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {post.categories.map((category) => (
-                          <Badge
-                            key={category.id}
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            <CategoryIcon className="mr-1 h-3 w-3" />
-                            {category.name}
-                          </Badge>
-                        ))}
+                <Link key={post.id} href={`/posts/${post.slug}`}>
+                  <Card className="flex flex-col overflow-hidden border cursor-pointer hover:shadow-md transition-shadow h-full">
+                    {post.imageUrl ? (
+                      <img
+                        src={post.imageUrl}
+                        alt={post.title}
+                        className="w-full h-40 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-40 bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                        <ImageOutlinedIcon className="h-12 w-12 text-muted-foreground/30" />
                       </div>
                     )}
-                  </CardContent>
 
-                  <CardFooter className="gap-2">
-                    <Link href={`/posts/${post.slug}`} className="flex-1">
-                      <Button variant="default" className="w-full gap-2">
-                        <VisibilityIcon className="h-4 w-4" />
-                        Read More
-                      </Button>
-                    </Link>
-                    <Link href={`/posts/${post.slug}/edit`}>
-                      <Button variant="outline" size="icon">
-                        <EditIcon className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </CardFooter>
-                </Card>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <CardTitle className="text-base line-clamp-2">
+                          {post.title}
+                        </CardTitle>
+                        <Badge
+                          variant={post.published ? "default" : "secondary"}
+                          className="text-xs shrink-0"
+                        >
+                          {post.published ? "Published" : "Draft"}
+                        </Badge>
+                      </div>
+                      <div className="space-y-1">
+                        <CardDescription className="flex items-center gap-1 text-xs">
+                          <CalendarTodayOutlinedIcon className="h-3 w-3" />
+                          {formatDate(post.createdAt)}
+                        </CardDescription>
+                        <CardDescription className="flex items-center gap-1 text-xs">
+                          <AccessTimeOutlinedIcon className="h-3 w-3" />
+                          {calculateReadingTime(post.content)} min read
+                        </CardDescription>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="flex-1 pt-0 pb-4">
+                      <p className="text-xs text-muted-foreground line-clamp-3 mb-3">
+                        {truncate(post.content.replace(/<[^>]*>/g, ""), 120)}
+                      </p>
+                      {post.categories.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {post.categories.map((category) => (
+                            <Badge
+                              key={category.id}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {category.name}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           ) : (
-            <Card>
+            <Card className="border">
               <CardHeader>
-                <CardTitle>No Posts Found</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-lg">No Posts Found</CardTitle>
+                <CardDescription className="text-sm">
                   Create your first post to get started
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href="/posts/new">
-                  <Button>Create First Post</Button>
+                  <Button size="sm">Create First Post</Button>
                 </Link>
               </CardContent>
             </Card>
           )}
         </div>
       </section>
-      <section className="bg-primary/5 py-16">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight mb-4">
+      <section className="bg-primary/5 py-12">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="mx-auto max-w-xl text-center">
+            <h2 className="text-2xl font-bold tracking-tight mb-3">
               Ready to Share Your Story?
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="text-sm text-muted-foreground mb-5">
               Join our community of writers and start creating amazing content
               today.
             </p>
             <Link href="/posts/new">
-              <Button size="lg" className="gap-2">
-                <CreateIcon className="h-5 w-5" />
+              <Button size="default" className="gap-2">
+                <CreateOutlinedIcon className="h-4 w-4" />
                 Create Your First Post
               </Button>
             </Link>
@@ -295,3 +296,4 @@ export default function HomePage() {
     </div>
   );
 }
+
